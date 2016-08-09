@@ -43,6 +43,43 @@ router.post('/in', function(req, res, next) {
                 if (user) {
                     user.auth(password, req.ip, callback);
                 } else {
+                    var err = new Error('notUser');
+                    err.status = 404;
+                    callback(err);
+
+                }
+            });
+        }
+    ], function(err, session) {
+        if (err && err.status) return res.sendStatus(err.status);
+        if (err) return res.sendStatus(500);
+        res.json(session);
+    });
+});
+
+router.post('/up', function(req, res, next) {
+
+    if (!req.body.email || !req.body.password || !req.body.promise) {
+        return res.sendStatus(400);
+    }
+
+    async.waterfall([
+        function(callback) {
+            req.db.user.findOne({
+                email: req.body.email
+            }, callback);
+        },
+        function(user, callback) {
+            key.get(req.body.promise, function(err, key) {
+                if (err) callback(err);
+
+                var password = crypto.AES.decrypt(req.body.password, key).toString(crypto.enc.Utf8);
+
+                if (user) {
+                    var err = new Error('This user is busy');
+                    err.status = 409;
+                    callback(err);
+                } else {
                     req.db.user.create({
                         email: req.body.email,
                         password: password,
