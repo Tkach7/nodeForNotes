@@ -15,13 +15,13 @@ router.get('/', function(req, res, next) {
         .select('-hash -sessions')
         .exec(function(err, users) {
             res.json(users);
-        })
+        });
 });
 
 // Get user
-router.get('/:id', function(req, res, next) {
+router.get('/:email', function(req, res, next) {
     req.db.user
-        .findOne({ _id: req.params.id })
+        .findOne({ email: req.params.email })
         .select('-hash -sessions')
         .exec(function(err, users) {
             res.json(users);
@@ -29,12 +29,18 @@ router.get('/:id', function(req, res, next) {
 });
 
 // Patch user
-router.patch('/:id', function(req, res, next) {
+router.patch('/:email', function(req, res, next) {
     if (!req.body.user) {
         return res.sendStatus(400);
     }
-    
-    res.sendStatus(200);
+    req.db.findOneAndUpdate({
+        email: email
+    }, req.body)
+    .exec(function(err, users) {
+        if (err) return res.sendStatus(400);
+        res.json(users);
+        res.sendStatus(200);
+    })
 });
 
 // Delete user

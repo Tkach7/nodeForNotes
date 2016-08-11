@@ -8,6 +8,8 @@ var config = require('../conf/settings.json');
 var schema = new mongoose.Schema({
     created: Date,
     updated: Date,
+    name: String,
+    birthday: Date,
     email: {
         type: String,
         required: true,
@@ -19,7 +21,22 @@ var schema = new mongoose.Schema({
     },
     sessions: [new mongoose.Schema({
         ip: String,
-        token: String
+        token: String, 
+        device: String,
+        os: String,
+        browser: String
+    })],
+    icon: {
+        type: String,
+        default: './images/default-icon.png'
+    },
+    todo: [new mongoose.Schema({
+        date: Date,
+        nameWork: String,
+        status: {
+            type:  Boolean,
+            default: false
+        } 
     })]
 });
 
