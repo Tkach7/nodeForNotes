@@ -52,16 +52,13 @@ schema.pre('save', function(next) {
     next();
 });
 
-schema.methods.auth = function(password, ip, callback) {
+schema.methods.auth = function(password, ip, userInfo, callback) {
     var self = this;
-
     async.waterfall([
         function(callback) {
-
             var session = self.sessions.filter(function(session) {
                 return session.ip === ip;
             }).pop();
-
             if (!!session) self.sessions.id(session._id).remove();
             callback(null);
         },
@@ -69,11 +66,14 @@ schema.methods.auth = function(password, ip, callback) {
             if (crypto.SHA512(password).toString() === self.hash) {
                 var session = {
                     ip: ip,
-                    token: crypto.lib.WordArray.random(256 / 8).toString()
+                    token: crypto.lib.WordArray.random(256 / 8).toString(),
+                    os: userInfo.os,
+                    browser: userInfo.browser,
+                    device: userInfo.isMobile ? 'Mobile' : 'PC'
                 };
 
                 self.sessions.unshift(session);
-                
+                console.log(self.sessions);
                 self.save(function(err) {
                     if (err) return callback(err);
                     callback(null, session);

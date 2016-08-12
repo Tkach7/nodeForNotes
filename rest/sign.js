@@ -1,12 +1,13 @@
 'use strict';
 
-var crypto = require('crypto-js');
-var express = require('express');
-var async = require('async');
+const crypto = require('crypto-js');
+const express = require('express');
+const async = require('async');
+const useragent = require('express-useragent');
 
 var router = express.Router();
 
-let key = require('../middleware/key');
+var key = require('../middleware/key');
 
 /** Get key token **/
 router.get('/key/:promise', function(req, res) {
@@ -23,11 +24,10 @@ router.get('/key/:promise', function(req, res) {
 
 /** Sign in action **/
 router.post('/in', function(req, res, next) {
-
     if (!req.body.email || !req.body.password || !req.body.promise) {
         return res.sendStatus(400);
     }
-
+    var userInfo = useragent.parse(req.headers['user-agent']);
     async.waterfall([
         function(callback) {
             req.db.user.findOne({
@@ -41,12 +41,11 @@ router.post('/in', function(req, res, next) {
                 var password = crypto.AES.decrypt(req.body.password, key).toString(crypto.enc.Utf8);
 
                 if (user) {
-                    user.auth(password, req.ip, callback);
+                    user.auth(password, req.ip, userInfo, callback);
                 } else {
                     var err = new Error('notUser');
                     err.status = 404;
                     callback(err);
-
                 }
             });
         }
@@ -62,7 +61,7 @@ router.post('/up', function(req, res, next) {
     if (!req.body.email || !req.body.password || !req.body.promise) {
         return res.sendStatus(400);
     }
-
+    var userInfo = useragent.parse(req.headers['user-agent']);
     async.waterfall([
         function(callback) {
             req.db.user.findOne({
@@ -86,9 +85,12 @@ router.post('/up', function(req, res, next) {
                     }, function(err, user) {
                         if (err) callback(err);
 
-                        let session = {
+                        var session = {
                             ip: req.ip,
-                            token: crypto.lib.WordArray.random(256 / 8).toString()
+                            token: crypto.lib.WordArray.random(256 / 8).toString(),
+                            os: userInfo.os,
+                            browser: userInfo.browser,
+                            device: userInfo.isMobile ? 'Mobile' : 'PC'
                         };
 
                         user.sessions.unshift(session);

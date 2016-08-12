@@ -19,28 +19,25 @@ router.get('/', function(req, res, next) {
 });
 
 // Get user
-router.get('/:email', function(req, res, next) {
-    req.db.user
-        .findOne({ email: req.params.email })
-        .select('-hash -sessions')
-        .exec(function(err, users) {
-            res.json(users);
-        })
-});
+// router.get('/:email', function(req, res, next) {
+//     req.db.user
+//         .findOne({ email: req.params.email })
+//         .select('-hash -sessions')
+//         .exec(function(err, users) {
+//             res.json(users);
+//         })
+// });
 
 // Patch user
 router.patch('/:email', function(req, res, next) {
-    if (!req.body.user) {
+    if (!req.body) {
         return res.sendStatus(400);
     }
-    req.db.findOneAndUpdate({
-        email: email
-    }, req.body)
+    req.db.user.findOneAndUpdate({"email": req.body.email}, req.body)
     .exec(function(err, users) {
         if (err) return res.sendStatus(400);
         res.json(users);
-        res.sendStatus(200);
-    })
+    });
 });
 
 // Delete user

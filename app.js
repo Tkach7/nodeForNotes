@@ -4,7 +4,7 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors')
 const logger = require('morgan');
-var bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 
 var app = express();
 
