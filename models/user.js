@@ -57,7 +57,11 @@ schema.methods.auth = function(password, ip, userInfo, callback) {
     async.waterfall([
         function(callback) {
             var session = self.sessions.filter(function(session) {
-                return session.ip === ip;
+                var device = userInfo.isMobile ? 'Mobile' : 'PC';
+                if (session.browser === userInfo.browser 
+                    && session.os === userInfo.os
+                    && session.device === device) return true;
+                return false;
             }).pop();
             if (!!session) self.sessions.id(session._id).remove();
             callback(null);
@@ -73,7 +77,6 @@ schema.methods.auth = function(password, ip, userInfo, callback) {
                 };
 
                 self.sessions.unshift(session);
-                console.log(self.sessions);
                 self.save(function(err) {
                     if (err) return callback(err);
                     callback(null, session);
