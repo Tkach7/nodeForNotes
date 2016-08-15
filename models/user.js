@@ -31,8 +31,8 @@ var schema = new mongoose.Schema({
         default: './images/default-icon.png'
     },
     todo: [new mongoose.Schema({
-        date: Date,
-        nameWork: String,
+        time: Date,
+        title: String,
         status: {
             type:  Boolean,
             default: false

@@ -30,6 +30,7 @@ router.get('/', function(req, res, next) {
 
 // Patch user
 router.patch('/:email', function(req, res, next) {
+    console.log(req.body);
     if (!req.body) {
         return res.sendStatus(400);
     }
@@ -37,6 +38,21 @@ router.patch('/:email', function(req, res, next) {
     .exec(function(err, users) {
         if (err) return res.sendStatus(400);
         res.json(users);
+    });
+});
+
+// Put user
+router.put('/todo', function(req, res, next) { 
+    if (!req.body) {
+        return res.sendStatus(400);
+    }
+    console.log(req.params);
+    req.db.user.findOne({ _id: req.user })
+    .exec((err, user) => {
+        user.todo.push(req.body);
+        user.save((err) => {
+            res.json(req.body);
+        });
     });
 });
 
