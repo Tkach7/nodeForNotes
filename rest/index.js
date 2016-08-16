@@ -15,7 +15,7 @@ module.exports = function(app) {
         req.db.user.findOne({
                 'sessions.token': session
             })
-            .select('-hash -sessions.token -sessions.token')
+            .select('-hash')
             .exec(function(err, user) {
                 if (err) return res.sendStatus(500);
 

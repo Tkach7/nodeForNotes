@@ -1,3 +1,5 @@
+'use strict';
+
 var async = require('async');
 var express = require('express');
 
@@ -29,30 +31,80 @@ router.get('/', function(req, res, next) {
 // });
 
 // Patch user
-router.patch('/:email', function(req, res, next) {
-    console.log(req.body);
+router.patch('/info', function(req, res, next) {
     if (!req.body) {
         return res.sendStatus(400);
     }
-    req.db.user.findOneAndUpdate({"email": req.body.email}, req.body)
+    req.db.user.findOneAndUpdate({_id: req.user}, req.body)
     .exec(function(err, users) {
         if (err) return res.sendStatus(400);
         res.json(users);
     });
 });
 
-// Put user
+// Put todo
 router.put('/todo', function(req, res, next) { 
     if (!req.body) {
         return res.sendStatus(400);
     }
-    console.log(req.params);
     req.db.user.findOne({ _id: req.user })
     .exec((err, user) => {
         user.todo.push(req.body);
         user.save((err) => {
             res.json(req.body);
         });
+    });
+});
+
+// Patch todo
+router.patch('/todo', function(req, res, next) { 
+    if (!req.body) {
+        return res.sendStatus(400);
+    }
+    req.db.user.findOneAndUpdate({ _id: req.user }, req.body)
+    .exec((err, user) => {
+        if (err) return res.sendStatus(400);
+        res.json(user);
+    });
+});
+
+// Delete todo
+router.delete('/todo/:todoId', function(req, res, next) { 
+    req.db.user.findOne({ _id: req.user })
+    .exec((err, user) => {
+        if (err) return res.sendStatus(400);
+
+        var todo = user.todo.filter(function(todo) {
+            return todo._id == req.params.todoId;
+        }).pop();
+
+        if (!!todo) user.todo.id(todo._id).remove();
+
+        user.save((err) => {
+            if (err) return res.sendstatus(500);
+
+            res.json(user);
+        })
+    });
+});
+
+// Delete session
+router.delete('/sessions/:sessionId', function(req, res, next) { 
+    req.db.user.findOne({ _id: req.user })
+    .exec((err, user) => {
+        if (err) return res.sendStatus(400);
+
+        var session = user.sessions.filter(function(session) {
+            return session._id == req.params.sessionId;
+        }).pop();
+
+        if (!!session) user.sessions.id(session._id).remove();
+
+        user.save((err) => {
+            if (err) return res.sendstatus(500);
+
+            res.json(user);
+        })
     });
 });
 
