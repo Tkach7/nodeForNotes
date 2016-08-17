@@ -51,7 +51,7 @@ router.put('/todo', function(req, res, next) {
     .exec((err, user) => {
         user.todo.push(req.body);
         user.save((err) => {
-            res.json(req.body);
+            res.json(user.todo.pop());
         });
     });
 });
