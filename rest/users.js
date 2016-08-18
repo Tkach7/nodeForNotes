@@ -68,8 +68,34 @@ router.patch('/todo', function(req, res, next) {
     });
 });
 
+// Patch time todo
+// Patch todo
+router.patch('/todo/time', function(req, res, next) { 
+    if (!req.body) {
+        return res.sendStatus(400);
+    }
+    req.db.user.findOne({ _id: req.user })
+    .exec((err, user) => {
+        if (err) return res.sendStatus(400);
+        
+        var todo = user.todo.filter(function(todo) {
+            return todo._id == req.body._id;
+        }).pop();
+
+        user.todo.id(todo._id).time = req.body.time;
+        user.save((err) => {
+            if (err) return res.sendstatus(500);
+
+            res.json(user);
+        })
+    });
+});
+
 // Delete todo
 router.delete('/todo/:todoId', function(req, res, next) { 
+    if (!req.body) {
+        return res.sendStatus(400);
+    }
     req.db.user.findOne({ _id: req.user })
     .exec((err, user) => {
         if (err) return res.sendStatus(400);
@@ -77,9 +103,7 @@ router.delete('/todo/:todoId', function(req, res, next) {
         var todo = user.todo.filter(function(todo) {
             return todo._id == req.params.todoId;
         }).pop();
-
         if (!!todo) user.todo.id(todo._id).remove();
-
         user.save((err) => {
             if (err) return res.sendstatus(500);
 

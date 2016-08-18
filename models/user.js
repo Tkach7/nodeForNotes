@@ -28,7 +28,7 @@ var schema = new mongoose.Schema({
     })],
     icon: {
         type: String,
-        default: './images/default-icon.png'
+        default: './images/grey-profile.png'
     },
     todo: [new mongoose.Schema({
         time: Date,
