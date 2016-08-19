@@ -1,3 +1,5 @@
+'use strict';
+
 var crypto = require('crypto-js');
 var moment = require('moment');
 var async = require('async');
@@ -28,7 +30,7 @@ var schema = new mongoose.Schema({
     })],
     icon: {
         type: String,
-        default: './images/grey-profile.png'
+        default: '/users/icon/grey-profile.png'
     },
     todo: [new mongoose.Schema({
         time: Date,

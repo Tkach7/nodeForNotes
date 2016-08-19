@@ -1,3 +1,6 @@
+'use strict';
+var fs = require('fs');
+var path = require("path");
 module.exports = function(app) {
 
     /** Load Models **/
@@ -6,6 +9,14 @@ module.exports = function(app) {
     /** Unsecured REST **/
     app.use('/sign', require('./sign'));
 
+   /** Get icons **/
+    app.get('/users/icon/:pic', function(req, res) {
+        console.log('123');
+        fs.access(path.join(__dirname, '../storage/pic/' + req.params.pic), fs.R_OK, function(err) {
+            if (err) return res.sendStatus(404);
+            res.sendFile(path.join(__dirname, '../storage/pic/' + req.params.pic));
+        })
+    });
     // /** Secured REST **/
     app.use('*', function(req, res, next) {
         if (req.method === 'OPTIONS') next();
@@ -23,7 +34,6 @@ module.exports = function(app) {
                 req.user = user;
                 next();
             });
-
     });
 
     /** Models REST **/

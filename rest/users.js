@@ -2,7 +2,9 @@
 
 var async = require('async');
 var express = require('express');
-
+var fs = require('fs');
+var crypto = require('crypto-js');
+var path = require("path");
 var router = express.Router();
 
 // Get users
@@ -136,5 +138,30 @@ router.delete('/sessions/:sessionId', function(req, res, next) {
 router.delete('/:id', function(req, res, next) {
     res.sendStatus(200);
 });
+
+/** Set Icon **/
+router.patch('/icon', function(req, res) {
+    let base64Data;
+    try {
+        base64Data = req.body.data.replace(/^data:image\/png;base64,/, "");
+    } catch (e) {
+        res.sendStatus(500);
+    }
+    let filename = crypto.lib.WordArray.random(256 / 32).toString() + '.png';
+
+    fs.writeFile(path.join(__dirname, '../storage/pic/' + filename), base64Data, 'base64', function(err) {
+        if (err) return res.sendStatus(500);
+
+        req.db.user.findOneAndUpdate({
+            _id: req.user.id,
+        }, {
+            icon: '/users/icon/' + filename
+        })
+        .exec(function(err) {
+            if (err) return res.sendStatus(500);
+            res.json('/users/icon/' + filename);
+        });
+    });
+})
 
 module.exports = router;
