@@ -87,7 +87,6 @@ router.patch('/todo/time', function(req, res, next) {
         user.todo.id(todo._id).time = req.body.time;
         user.save((err) => {
             if (err) return res.sendstatus(500);
-
             res.json(user);
         })
     });
